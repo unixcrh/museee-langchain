@@ -12,6 +12,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import { Agent } from './api/agents';
+import { log } from 'console';
 
 const QA_PROMPT = `You are a helpful AI assistant. Use the following pieces of context to answer the question at the end, please answer as long as possible.
 If you don't know the answer, just say you don't know. DO NOT try to make up an answer.
@@ -19,26 +21,56 @@ If the question is not related to the context, politely respond that you are tun
 
 {context}
 
-Question: {question}
-Please answer in Japanese, Helpful answer in markdown:`;
+Question: {question}, Helpful answer in markdown:`;
 
 export default function Home() {
   const [query, setQuery] = useState<string>('');
   const [prompt, setPrompt] = useState<string>(QA_PROMPT);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [agent, setAgent] = useState<Agent>();
+  const [agents, setAgents] = useState<Agent[]>([]);
+  const fetchAgents = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/agents', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+      setAgents(data);
+      setAgent(data[0]);
+      setLoading(false);
+      setMessageState({
+        messages: [
+          {
+            message: `Hi, I'm ${data[0].name}, do you have any questions?`,
+            type: 'apiMessage',
+          },
+        ],
+        history: [],
+      })
+    } catch (error) {
+      console.log('error', error);
+      setLoading(false);
+      alert('Error fetching agents ${error}');
+    }
+  }
+
+  useEffect(() => {
+    fetchAgents();
+  }, []);
+
   const [messageState, setMessageState] = useState<{
     messages: Message[];
     pending?: string;
     history: [string, string][];
     pendingSourceDocs?: Document[];
   }>({
-    messages: [
-      {
-        message: 'Hi, what would you like to learn about this case?',
-        type: 'apiMessage',
-      },
-    ],
+    messages: [],
     history: [],
   });
 
@@ -79,6 +111,7 @@ export default function Home() {
     setQuery('');
 
     try {
+      const namespace = agent?.namespace;
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
@@ -88,6 +121,7 @@ export default function Home() {
           question,
           history,
           prompt,
+          namespace
         }),
       });
       const data = await response.json();
@@ -131,15 +165,30 @@ export default function Home() {
     }
   };
 
+  const handleAgentSelect = (agentName: string) => {
+    const agent = agents.find((agent) => agent.name === agentName);
+    console.log('set agent', agent);
+    setAgent(agent);
+    setMessageState({
+      messages: [
+        {
+          message: `Hi, I'm ${agent?.name} do you have any question?`,
+          type: 'apiMessage',
+        },
+      ],
+      history: [],
+    })
+  }
+
   return (
     <>
-      <Layout>
-        <div className="mx-auto flex flex-col gap-4">
-          <h1 className="text-2xl font-bold leading-[1.1] tracking-tighter text-center">
-            Chat With Your Docs
+      <Layout tabIndex={0}>
+        <div className="mx-auto flex flex-col gap-4 min-h-screen">
+          <h1 className="text-2xl font-bold leading-[1.1] tracking-tighter text-center mt-4">
+            MUSEEE Chat
           </h1>
 
-          <textarea className="w-full h-40" onChange={(e) => setPrompt(e.target.value)} value={prompt}></textarea>
+          {/* <textarea className="w-full h-40" onChange={(e) => setPrompt(e.target.value)} value={prompt}></textarea> */}
           <main className={styles.main}>
             <div className={styles.cloud}>
               <div ref={messageListRef} className={styles.messagelist}>
@@ -150,11 +199,11 @@ export default function Home() {
                     icon = (
                       <Image
                         key={index}
-                        src="/bot-image.png"
+                        src={`${agent ? agent.avatarUrl : "/bot-image.png"}`}
                         alt="AI"
                         width="40"
                         height="40"
-                        className={styles.boticon}
+                        className='rounded-full'
                         priority
                       />
                     );
@@ -179,7 +228,7 @@ export default function Home() {
                   }
                   return (
                     <>
-                      <div key={`chatMessage-${index}`} className={className}>
+                      <div key={`chatMessage-${index}`} className='flex items-center gap-2'>
                         {icon}
                         <div className={styles.markdownanswer}>
                           <ReactMarkdown linkTarget="_blank">
@@ -222,9 +271,23 @@ export default function Home() {
                 })}
               </div>
             </div>
-            <div className={styles.center}>
-              <div className={styles.cloudform}>
-                <form onSubmit={handleSubmit}>
+            <div className='w-full '>
+              <div className='text-gray-400 flex items-center'>Chat with
+                {
+                  agent && <Image className="rounded-full ml-2" alt={agent.name} src={agent.avatarUrl} width={20} height={20} />
+                }
+
+                <select className='ml-2 text-black font-bold' onChange={(e) => handleAgentSelect(e.target.value)}>
+                  {agents.map((agent) => (
+                    <option key={agent.name} value={agent.name}>
+                      <div className='flex items-center'>
+                        {agent.name}
+                      </div>
+                    </option>
+                  ))}
+                </select></div>
+              <div className='border-2 rounded-2xl p-4 mt-2'>
+                <form onSubmit={handleSubmit} className='flex'>
                   <textarea
                     disabled={loading}
                     onKeyDown={handleEnter}
@@ -237,16 +300,16 @@ export default function Home() {
                     placeholder={
                       loading
                         ? 'Waiting for response...'
-                        : 'What is this case about?'
+                        : 'Input your question'
                     }
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    className={styles.textarea}
+                    className='w-full outline-none text-lg'
                   />
                   <button
                     type="submit"
                     disabled={loading}
-                    className={styles.generatebutton}
+                    className=''
                   >
                     {loading ? (
                       <div className={styles.loadingwheel}>
@@ -274,9 +337,7 @@ export default function Home() {
           </main>
         </div>
         <footer className="m-auto p-4">
-          <a href="https://twitter.com/mayowaoshin">
-            Powered by LangChainAI. Demo built by Mayo (Twitter: @mayowaoshin).
-          </a>
+          Powered by MUSEEE
         </footer>
       </Layout>
     </>
