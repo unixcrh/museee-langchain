@@ -203,7 +203,7 @@ export default function Home() {
                         alt="AI"
                         width="40"
                         height="40"
-                        className='rounded-full'
+                        className='rounded-full shrink-0 grow-0'
                         priority
                       />
                     );
@@ -214,9 +214,9 @@ export default function Home() {
                         key={index}
                         src="/usericon.png"
                         alt="Me"
-                        width="30"
-                        height="30"
-                        className={styles.usericon}
+                        width="40"
+                        height="40"
+                        className='rounded-full shrink-0 grow-0'
                         priority
                       />
                     );
@@ -228,44 +228,45 @@ export default function Home() {
                   }
                   return (
                     <>
-                      <div key={`chatMessage-${index}`} className='flex items-center gap-2'>
-                        {icon}
+                      <div key={`chatMessage-${index}`} className={`${loading && index === messages.length - 1 ? 'usermessagewaiting' : ''} flex gap-4 p-6`}>
+                        <div className='shrink-0'>{icon}</div>
                         <div className={styles.markdownanswer}>
                           <ReactMarkdown linkTarget="_blank">
                             {message.message}
                           </ReactMarkdown>
+
+                          {message.sourceDocs && (
+                            <div
+                              className=""
+                              key={`sourceDocsAccordion-${index}`}
+                            >
+                              <Accordion
+                                type="single"
+                                collapsible
+                                className="flex-col"
+                              >
+                                {message.sourceDocs.map((doc, index) => (
+                                  <div key={`messageSourceDocs-${index}`}>
+                                    <AccordionItem value={`item-${index}`}>
+                                      <AccordionTrigger>
+                                        <h3 className='text-blue-600 text-sm'>Source {index + 1}</h3>
+                                      </AccordionTrigger>
+                                      <AccordionContent>
+                                        <ReactMarkdown linkTarget="_blank">
+                                          {doc.pageContent}
+                                        </ReactMarkdown>
+                                        <p className="mt-2">
+                                          <b>Source:</b> {doc.metadata.source?.split('/').pop()}
+                                        </p>
+                                      </AccordionContent>
+                                    </AccordionItem>
+                                  </div>
+                                ))}
+                              </Accordion>
+                            </div>
+                          )}
                         </div>
                       </div>
-                      {message.sourceDocs && (
-                        <div
-                          className="p-5"
-                          key={`sourceDocsAccordion-${index}`}
-                        >
-                          <Accordion
-                            type="single"
-                            collapsible
-                            className="flex-col"
-                          >
-                            {message.sourceDocs.map((doc, index) => (
-                              <div key={`messageSourceDocs-${index}`}>
-                                <AccordionItem value={`item-${index}`}>
-                                  <AccordionTrigger>
-                                    <h3>Source {index + 1}</h3>
-                                  </AccordionTrigger>
-                                  <AccordionContent>
-                                    <ReactMarkdown linkTarget="_blank">
-                                      {doc.pageContent}
-                                    </ReactMarkdown>
-                                    <p className="mt-2">
-                                      <b>Source:</b> {doc.metadata.source}
-                                    </p>
-                                  </AccordionContent>
-                                </AccordionItem>
-                              </div>
-                            ))}
-                          </Accordion>
-                        </div>
-                      )}
                     </>
                   );
                 })}
@@ -286,7 +287,7 @@ export default function Home() {
                     </option>
                   ))}
                 </select></div>
-              <div className='border-2 rounded-2xl p-4 mt-2'>
+              <div className={`border-2 rounded-2xl p-4 mt-2 ${loading && 'bg-gray-200'}`}>
                 <form onSubmit={handleSubmit} className='flex'>
                   <textarea
                     disabled={loading}
