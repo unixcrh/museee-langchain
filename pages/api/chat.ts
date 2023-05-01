@@ -9,7 +9,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  const { question, history } = req.body;
+  const { question, history, prompt } = req.body;
 
   console.log('question', question);
 
@@ -39,7 +39,7 @@ export default async function handler(
     );
 
     //create chain
-    const chain = makeChain(vectorStore);
+    const chain = makeChain(vectorStore, prompt);
     //Ask a question using chat history
     const response = await chain.call({
       question: sanitizedQuestion,

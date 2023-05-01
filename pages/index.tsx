@@ -13,8 +13,18 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 
+const QA_PROMPT = `You are a helpful AI assistant. Use the following pieces of context to answer the question at the end, please answer as long as possible.
+If you don't know the answer, just say you don't know. DO NOT try to make up an answer.
+If the question is not related to the context, politely respond that you are tuned to only answer questions that are related to the context.
+
+{context}
+
+Question: {question}
+Please answer in Japanese, Helpful answer in markdown:`;
+
 export default function Home() {
   const [query, setQuery] = useState<string>('');
+  const [prompt, setPrompt] = useState<string>(QA_PROMPT);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [messageState, setMessageState] = useState<{
@@ -25,7 +35,7 @@ export default function Home() {
   }>({
     messages: [
       {
-        message: 'Hi, what would you like to learn about this legal case?',
+        message: 'Hi, what would you like to learn about this case?',
         type: 'apiMessage',
       },
     ],
@@ -77,6 +87,7 @@ export default function Home() {
         body: JSON.stringify({
           question,
           history,
+          prompt,
         }),
       });
       const data = await response.json();
@@ -125,8 +136,10 @@ export default function Home() {
       <Layout>
         <div className="mx-auto flex flex-col gap-4">
           <h1 className="text-2xl font-bold leading-[1.1] tracking-tighter text-center">
-            Chat With Your Legal Docs
+            Chat With Your Docs
           </h1>
+
+          <textarea className="w-full h-40" onChange={(e) => setPrompt(e.target.value)} value={prompt}></textarea>
           <main className={styles.main}>
             <div className={styles.cloud}>
               <div ref={messageListRef} className={styles.messagelist}>
@@ -224,7 +237,7 @@ export default function Home() {
                     placeholder={
                       loading
                         ? 'Waiting for response...'
-                        : 'What is this legal case about?'
+                        : 'What is this case about?'
                     }
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
