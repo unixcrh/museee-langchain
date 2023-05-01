@@ -49,7 +49,7 @@ export default function Agents(props: any) {
                                     <h2 className="text-black font-bold text-lg ml-2">{agent.name}</h2>
                                 </div>
                                 <p className="text-gray-500 text-sm mt-2">{agent.description}</p>
-                                <div className="mt-6 mb-1 text-sm text-gray-400">Knowledges</div>
+                                <div className="mt-6 mb-1 text-sm text-gray-400">Knowledge</div>
                                 {agent.metaData.map((metaData) => (
                                     <div className="text-sm text-blue-600">{metaData.fileName} <span className="text">{metaData.pageNumber}</span></div>
                                 ))}
