@@ -23,20 +23,21 @@ If the question is not related to the context, politely respond that you are tun
 
 Question: {question}, Helpful answer in markdown`;
 
-const LANGUAGES = [
-  { name: 'English', prompt: 'English' },
-  { name: '中文', prompt: 'Chinese' },
-  { name: '日本語', prompt: 'Japanese' },
-  { name: '한국어', prompt: 'Korean' },
-];
-
 export default function Home() {
+  const LANGUAGES = [
+    { name: 'English', prompt: 'English' },
+    { name: '中文', prompt: 'Chinese' },
+    { name: '日本語', prompt: 'Japanese' },
+    { name: '한국어', prompt: 'Korean' },
+  ];
+
   const [query, setQuery] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [agent, setAgent] = useState<Agent>();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [language, setLanguage] = useState<string>('English');
+  const [languages, setLanguages] = useState<{ name: string; prompt: string }[]>(LANGUAGES);
   const fetchAgents = async () => {
     setLoading(true);
     try {
@@ -190,7 +191,6 @@ export default function Home() {
 
   const handleLanguageSelect = (language: string) => {
     setLanguage(language);
-
   }
 
   return (
@@ -290,7 +290,7 @@ export default function Home() {
               <div className='flex items-center '>
                 <div className='text-gray-400 flex items-center'>
                   <Icon icon="fluent:bot-24-filled" className='text-lg' />
-                  <span className='ml-1'>Chat with</span>
+                  <div className='ml-1'>Chat with</div>
                   {
                     agent && <Image className="rounded-full ml-2" alt={agent.name} src={agent.avatarUrl} width={20} height={20} />
                   }
@@ -298,22 +298,19 @@ export default function Home() {
                   <select className='ml-2 text-black font-bold' onChange={(e) => handleAgentSelect(e.target.value)}>
                     {agents.map((agent) => (
                       <option key={agent.name} value={agent.name}>
-                        <div className='flex items-center'>
-                          {agent.name}
-                        </div>
+                        {agent.name}
                       </option>
                     ))}
-                  </select></div>
+                  </select>
+                </div>
 
                 <div className='ml-10 text-gray-400 flex items-center'>
                   <Icon name='language' className='mr-2' icon='material-symbols:language' />
-                  Output in
+                  <div>Output in</div>
                   <select className=' text-black font-bold' onChange={(e) => handleLanguageSelect(e.target.value)}>
-                    {LANGUAGES.map((language) => (
-                      <option key={language.name} value={language.prompt}>
-                        <div className='flex items-center'>
-                          {language.name}
-                        </div>
+                    {languages.map((language) => (
+                      <option key={language.prompt} value={language.prompt}>
+                        {language.name}
                       </option>
                     ))}
                   </select>
@@ -369,7 +366,7 @@ export default function Home() {
             )}
           </main>
         </div >
-        <footer className="m-auto p-2 text-gray-400 text-sm">
+        <footer className="m-auto p-2">
           Powered by MUSEEE
         </footer>
       </Layout >
