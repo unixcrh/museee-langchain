@@ -27,7 +27,7 @@ export default function Layout({ children, tabIndex }: LayoutProps) {
 
         </nav>
 
-        <main className="flex w-full flex-1 flex-col overflow-hidden">
+        <main className="flex flex-1 flex-col overflow-hidden min-h-screen">
           {children}
         </main>
       </div>

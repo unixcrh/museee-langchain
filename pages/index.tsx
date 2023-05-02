@@ -13,7 +13,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { Agent } from './api/agents';
-import { log } from 'console';
+import { Icon } from '@iconify/react';
 
 const QA_PROMPT = `You are a helpful AI assistant. Use the following pieces of context to answer the question at the end, please answer as long as possible.
 If you don't know the answer, just say you don't know. DO NOT try to make up an answer.
@@ -21,15 +21,22 @@ If the question is not related to the context, politely respond that you are tun
 
 {context}
 
-Question: {question}, Helpful answer in markdown:`;
+Question: {question}, Helpful answer in markdown`;
+
+const LANGUAGES = [
+  { name: 'English', prompt: 'English' },
+  { name: '中文', prompt: 'Chinese' },
+  { name: '日本語', prompt: 'Japanese' },
+  { name: '한국어', prompt: 'Korean' },
+];
 
 export default function Home() {
   const [query, setQuery] = useState<string>('');
-  const [prompt, setPrompt] = useState<string>(QA_PROMPT);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [agent, setAgent] = useState<Agent>();
   const [agents, setAgents] = useState<Agent[]>([]);
+  const [language, setLanguage] = useState<string>('English');
   const fetchAgents = async () => {
     setLoading(true);
     try {
@@ -112,6 +119,7 @@ export default function Home() {
 
     try {
       const namespace = agent?.namespace;
+      const prompt = QA_PROMPT + `, Please answer in ${language}:`;
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
@@ -180,17 +188,22 @@ export default function Home() {
     })
   }
 
+  const handleLanguageSelect = (language: string) => {
+    setLanguage(language);
+
+  }
+
   return (
     <>
       <Layout tabIndex={0}>
-        <div className="mx-auto flex flex-col gap-4 min-h-screen">
-          <h1 className="text-2xl font-bold leading-[1.1] tracking-tighter text-center mt-4">
+        <div className="flex flex-col w-full h-full items-center">
+          <h1 className="text-2xl font-bold leading-[1.1] tracking-tighter text-center mt-8">
             MUSEEE Chat
           </h1>
 
-          {/* <textarea className="w-full h-40" onChange={(e) => setPrompt(e.target.value)} value={prompt}></textarea> */}
-          <main className={styles.main}>
-            <div className={styles.cloud}>
+          <main className='flex flex-col items-center h-full main-width mt-8 relative'>
+            {/* Content */}
+            <div className='message-list-height w-full'>
               <div ref={messageListRef} className={styles.messagelist}>
                 {messages.map((message, index) => {
                   let icon;
@@ -272,21 +285,40 @@ export default function Home() {
                 })}
               </div>
             </div>
-            <div className='w-full '>
-              <div className='text-gray-400 flex items-center'>Chat with
-                {
-                  agent && <Image className="rounded-full ml-2" alt={agent.name} src={agent.avatarUrl} width={20} height={20} />
-                }
+            {/* Input */}
+            <div className='w-full absolute bottom-1 bg-white'>
+              <div className='flex items-center '>
+                <div className='text-gray-400 flex items-center'>
+                  <Icon icon="fluent:bot-24-filled" className='text-lg' />
+                  <span className='ml-1'>Chat with</span>
+                  {
+                    agent && <Image className="rounded-full ml-2" alt={agent.name} src={agent.avatarUrl} width={20} height={20} />
+                  }
 
-                <select className='ml-2 text-black font-bold' onChange={(e) => handleAgentSelect(e.target.value)}>
-                  {agents.map((agent) => (
-                    <option key={agent.name} value={agent.name}>
-                      <div className='flex items-center'>
-                        {agent.name}
-                      </div>
-                    </option>
-                  ))}
-                </select></div>
+                  <select className='ml-2 text-black font-bold' onChange={(e) => handleAgentSelect(e.target.value)}>
+                    {agents.map((agent) => (
+                      <option key={agent.name} value={agent.name}>
+                        <div className='flex items-center'>
+                          {agent.name}
+                        </div>
+                      </option>
+                    ))}
+                  </select></div>
+
+                <div className='ml-10 text-gray-400 flex items-center'>
+                  <Icon name='language' className='mr-2' icon='material-symbols:language' />
+                  Output in
+                  <select className=' text-black font-bold' onChange={(e) => handleLanguageSelect(e.target.value)}>
+                    {LANGUAGES.map((language) => (
+                      <option key={language.name} value={language.prompt}>
+                        <div className='flex items-center'>
+                          {language.name}
+                        </div>
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
               <div className={`border-2 rounded-2xl p-4 mt-2 ${loading && 'bg-gray-200'}`}>
                 <form onSubmit={handleSubmit} className='flex'>
                   <textarea
@@ -336,11 +368,11 @@ export default function Home() {
               </div>
             )}
           </main>
-        </div>
-        <footer className="m-auto p-4">
+        </div >
+        <footer className="m-auto p-2 text-gray-400 text-sm">
           Powered by MUSEEE
         </footer>
-      </Layout>
+      </Layout >
     </>
   );
 }
