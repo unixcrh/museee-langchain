@@ -14,9 +14,9 @@ export default function Layout({ children, tabIndex }: LayoutProps) {
   ]
 
   return (
-    <div className="mx-auto flex flex-col space-y-4">
-      <div className="flex">
-        <nav className="flex flex-col w-28 bg-gray-800 border-r border-gray-200 items-center">
+    <div className="mx-auto">
+      <div className="nav">
+        <nav className="nav-items w-28 bg-gray-800 border-r border-gray-200 items-center">
           {tabs.map((tab, index) => (
             <a
               key={index} href={tab.href} className={`text-white w-full ${tabIndex === index ? 'bg-gray-900' : 'bg-gray-800'} hover:bg-gray-900 cursor-pointer flex flex-col items-center py-4 px-8`}>

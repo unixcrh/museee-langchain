@@ -37,7 +37,8 @@ export default function Home() {
   const [agent, setAgent] = useState<Agent>();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [language, setLanguage] = useState<string>('English');
-  const [languages, setLanguages] = useState<{ name: string; prompt: string }[]>(LANGUAGES);
+  const [languages, setLanguages] =
+    useState<{ name: string; prompt: string }[]>(LANGUAGES);
   const fetchAgents = async () => {
     setLoading(true);
     try {
@@ -60,13 +61,13 @@ export default function Home() {
           },
         ],
         history: [],
-      })
+      });
     } catch (error) {
       console.log('error', error);
       setLoading(false);
       alert('Error fetching agents ${error}');
     }
-  }
+  };
 
   useEffect(() => {
     fetchAgents();
@@ -130,7 +131,7 @@ export default function Home() {
           question,
           history,
           prompt,
-          namespace
+          namespace,
         }),
       });
       const data = await response.json();
@@ -186,24 +187,24 @@ export default function Home() {
         },
       ],
       history: [],
-    })
-  }
+    });
+  };
 
   const handleLanguageSelect = (language: string) => {
     setLanguage(language);
-  }
+  };
 
   return (
     <>
       <Layout tabIndex={0}>
-        <div className="flex flex-col w-full h-full items-center">
+        <div className="flex flex-col w-full h-full items-center flex-1">
           <h1 className="text-2xl font-bold leading-[1.1] tracking-tighter text-center mt-8">
             MUSEEE Chat
           </h1>
 
-          <main className='flex flex-col items-center h-full main-width mt-8 relative'>
+          <main className="flex flex-col items-center h-full main-width mt-8 relative">
             {/* Content */}
-            <div className='message-list-height w-full'>
+            <div className="message-list-height w-full">
               <div ref={messageListRef} className={styles.messagelist}>
                 {messages.map((message, index) => {
                   let icon;
@@ -212,11 +213,11 @@ export default function Home() {
                     icon = (
                       <Image
                         key={index}
-                        src={`${agent ? agent.avatarUrl : "/bot-image.png"}`}
+                        src={`${agent ? agent.avatarUrl : '/bot-image.png'}`}
                         alt="AI"
                         width="40"
                         height="40"
-                        className='rounded-full shrink-0 grow-0'
+                        className="rounded-full shrink-0 grow-0"
                         priority
                       />
                     );
@@ -229,7 +230,7 @@ export default function Home() {
                         alt="Me"
                         width="40"
                         height="40"
-                        className='rounded-full shrink-0 grow-0'
+                        className="rounded-full shrink-0 grow-0"
                         priority
                       />
                     );
@@ -241,8 +242,15 @@ export default function Home() {
                   }
                   return (
                     <>
-                      <div key={`chatMessage-${index}`} className={`${loading && index === messages.length - 1 ? 'usermessagewaiting' : ''} flex gap-4 p-6`}>
-                        <div className='shrink-0'>{icon}</div>
+                      <div
+                        key={`chatMessage-${index}`}
+                        className={`${
+                          loading && index === messages.length - 1
+                            ? 'usermessagewaiting'
+                            : ''
+                        } flex gap-4 p-6`}
+                      >
+                        <div className="shrink-0">{icon}</div>
                         <div className={styles.markdownanswer}>
                           <ReactMarkdown linkTarget="_blank">
                             {message.message}
@@ -262,14 +270,19 @@ export default function Home() {
                                   <div key={`messageSourceDocs-${index}`}>
                                     <AccordionItem value={`item-${index}`}>
                                       <AccordionTrigger>
-                                        <h3 className='text-blue-600 text-sm'>Source {index + 1}</h3>
+                                        <h3 className="text-blue-600 text-sm">
+                                          Source {index + 1}
+                                        </h3>
                                       </AccordionTrigger>
                                       <AccordionContent>
                                         <ReactMarkdown linkTarget="_blank">
                                           {doc.pageContent}
                                         </ReactMarkdown>
                                         <p className="mt-2">
-                                          <b>Source:</b> {doc.metadata.source?.split('/').pop()}
+                                          <b>Source:</b>{' '}
+                                          {doc.metadata.source
+                                            ?.split('/')
+                                            .pop()}
                                         </p>
                                       </AccordionContent>
                                     </AccordionItem>
@@ -286,16 +299,25 @@ export default function Home() {
               </div>
             </div>
             {/* Input */}
-            <div className='w-full absolute bottom-1 bg-white'>
-              <div className='flex items-center '>
-                <div className='text-gray-400 flex items-center'>
-                  <Icon icon="fluent:bot-24-filled" className='text-lg' />
-                  <div className='ml-1'>Chat with</div>
-                  {
-                    agent && <Image className="rounded-full ml-2" alt={agent.name} src={agent.avatarUrl} width={20} height={20} />
-                  }
+            <div className="w-full absolute bottom-1 bg-white">
+              <div className="chat-options items-center">
+                <div className="text-gray-400 flex items-center">
+                  <Icon icon="fluent:bot-24-filled" className="text-lg" />
+                  <div className="ml-1">Chat with</div>
+                  {agent && (
+                    <Image
+                      className="rounded-full ml-2"
+                      alt={agent.name}
+                      src={agent.avatarUrl}
+                      width={20}
+                      height={20}
+                    />
+                  )}
 
-                  <select className='ml-2 text-black font-bold' onChange={(e) => handleAgentSelect(e.target.value)}>
+                  <select
+                    className="ml-2 text-black font-bold"
+                    onChange={(e) => handleAgentSelect(e.target.value)}
+                  >
                     {agents.map((agent) => (
                       <option key={agent.name} value={agent.name}>
                         {agent.name}
@@ -304,10 +326,17 @@ export default function Home() {
                   </select>
                 </div>
 
-                <div className='ml-10 text-gray-400 flex items-center'>
-                  <Icon name='language' className='mr-2' icon='material-symbols:language' />
+                <div className="text-gray-400 flex items-center">
+                  <Icon
+                    name="language"
+                    className="mr-2"
+                    icon="material-symbols:language"
+                  />
                   <div>Output in</div>
-                  <select className=' text-black font-bold' onChange={(e) => handleLanguageSelect(e.target.value)}>
+                  <select
+                    className=" text-black font-bold"
+                    onChange={(e) => handleLanguageSelect(e.target.value)}
+                  >
                     {languages.map((language) => (
                       <option key={language.prompt} value={language.prompt}>
                         {language.name}
@@ -316,8 +345,12 @@ export default function Home() {
                   </select>
                 </div>
               </div>
-              <div className={`border-2 rounded-2xl p-4 mt-2 ${loading && 'bg-gray-200'}`}>
-                <form onSubmit={handleSubmit} className='flex'>
+              <div
+                className={`border-2 rounded-2xl p-4 mt-2 ${
+                  loading && 'bg-gray-200'
+                }`}
+              >
+                <form onSubmit={handleSubmit} className="flex">
                   <textarea
                     disabled={loading}
                     onKeyDown={handleEnter}
@@ -334,13 +367,9 @@ export default function Home() {
                     }
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    className='w-full outline-none text-lg'
+                    className="w-full outline-none text-lg"
                   />
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className=''
-                  >
+                  <button type="submit" disabled={loading} className="">
                     {loading ? (
                       <div className={styles.loadingwheel}>
                         <LoadingDots color="#000" />
@@ -365,11 +394,9 @@ export default function Home() {
               </div>
             )}
           </main>
-        </div >
-        <footer className="m-auto p-2">
-          Powered by MUSEEE
-        </footer>
-      </Layout >
+        </div>
+        <footer className="p-2 flex flex-col items-center">Powered by MUSEEE</footer>
+      </Layout>
     </>
   );
 }

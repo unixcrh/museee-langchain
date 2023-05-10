@@ -3,9 +3,51 @@
 @tailwind utilities;
 
 .main-width {
-    width: 75vw;
+  width: 75vw;
 }
 
 .message-list-height {
-    height: 75vh;
+  height: 75vh;
+}
+
+.nav {
+  display: flex;
+}
+
+.nav-items {
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-options {
+  display: flex;
+  flex-direction: row;
+  gap: 2.5rem;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .nav {
+    display: flex;
+    flex-direction: column;
+  }
+  .main-width {
+    width: 90vw;
+  }
+
+  .message-list-height {
+    height: 80vh;
+  }
+
+  .nav-items {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .chat-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: start;
+  }
 }

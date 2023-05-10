@@ -46,7 +46,6 @@ export default async function handler(
       chat_history: history || [],
     });
 
-    console.log('response', response);
     res.status(200).json(response);
   } catch (error: any) {
     console.log('error', error);
