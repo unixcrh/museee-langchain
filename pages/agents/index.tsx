@@ -4,6 +4,7 @@ import { Knowledge } from '../knowledge';
 import ReactModal from 'react-modal';
 import { Icon } from '@iconify/react';
 import fetchAgents from '../api/agents';
+import { get } from 'http';
 
 const userId = '1';
 
@@ -18,27 +19,27 @@ export type Agent = {
 };
 
 export default function Agents(props: any) {
-  const [agents, setAgents] = useState<Agent[]>([]);
+  const [agents, setAgents] = useState<Agent[]>(props.agents);
   const [loading, setLoading] = useState<boolean>(false);
   const [agentCreationModalOpen, setAgentCreationModalOpen] =
     useState<boolean>(false);
-  const fetchAllAgents = async () => {
-    setLoading(true);
-    try {
-      const agents = await fetchAgents(userId);
-      console.log('agents', agents);
-      setAgents(agents);
-      setLoading(false);
-    } catch (error) {
-      console.log('error', error);
-      setLoading(false);
-      alert(`Error fetching agents ${error}`);
-    }
-  };
+  //   const fetchAllAgents = async () => {
+  //     setLoading(true);
+  //     try {
+  //       const agents = await fetchAgents(userId);
+  //       console.log('agents', agents);
+  //       setAgents(agents);
+  //       setLoading(false);
+  //     } catch (error) {
+  //       console.log('error', error);
+  //       setLoading(false);
+  //       alert(`Error fetching agents ${error}`);
+  //     }
+  //   };
 
-  useEffect(() => {
-    fetchAllAgents();
-  }, []);
+  //   useEffect(() => {
+  //     fetchAllAgents();
+  //   }, []);
 
   console.log('props', props);
   return (
@@ -83,7 +84,7 @@ export default function Agents(props: any) {
             isOpen={agentCreationModalOpen}
             onAgentCreateSuccess={() => {
               setAgentCreationModalOpen(false);
-              fetchAllAgents();
+              //   fetchAllAgents();
             }}
             onAgentCreateFailure={() => setAgentCreationModalOpen(false)}
             onModalClose={() => setAgentCreationModalOpen(false)}
@@ -301,4 +302,14 @@ export function AgentCreationModal(props: any) {
       </ReactModal>
     </>
   );
+}
+
+export async function getServerSideProps(context: any) {
+  const agents = await fetchAgents(userId);
+
+  return {
+    props: {
+      agents: agents,
+    },
+  };
 }
