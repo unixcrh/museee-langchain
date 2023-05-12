@@ -19,27 +19,27 @@ export type Agent = {
 };
 
 export default function Agents(props: any) {
-  const [agents, setAgents] = useState<Agent[]>(props.agents);
+  const [agents, setAgents] = useState<Agent[]>();
   const [loading, setLoading] = useState<boolean>(false);
   const [agentCreationModalOpen, setAgentCreationModalOpen] =
     useState<boolean>(false);
-  //   const fetchAllAgents = async () => {
-  //     setLoading(true);
-  //     try {
-  //       const agents = await fetchAgents(userId);
-  //       console.log('agents', agents);
-  //       setAgents(agents);
-  //       setLoading(false);
-  //     } catch (error) {
-  //       console.log('error', error);
-  //       setLoading(false);
-  //       alert(`Error fetching agents ${error}`);
-  //     }
-  //   };
+  const fetchAllAgents = async () => {
+    setLoading(true);
+    try {
+      const agents = await fetchAgents(userId);
+      console.log('agents', agents);
+      setAgents(agents);
+      setLoading(false);
+    } catch (error) {
+      console.log('error', error);
+      setLoading(false);
+      alert(`Error fetching agents ${error}`);
+    }
+  };
 
-  //   useEffect(() => {
-  //     fetchAllAgents();
-  //   }, []);
+  useEffect(() => {
+    fetchAllAgents();
+  }, []);
 
   console.log('props', props);
   return (
@@ -302,14 +302,4 @@ export function AgentCreationModal(props: any) {
       </ReactModal>
     </>
   );
-}
-
-export async function getServerSideProps(context: any) {
-  const agents = await fetchAgents(userId);
-
-  return {
-    props: {
-      agents: agents,
-    },
-  };
 }

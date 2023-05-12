@@ -1,14 +1,15 @@
 {
-  "name": "gpt4-langchain-pdf-chatbot",
+  "name": "museee",
   "version": "0.1.0",
   "private": true,
   "license": "MIT",
-  "author": "Mayooear<twitter:@mayowaoshin>",
+  "author": "hawkoyates@gmail.com",
   "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start:log": "./node_modules/.bin/pm2 start ecosystem.config.cjs && npm run pm2:log",
+    "start:dev": "DB_HOST=localhost ./node_modules/.bin/pm2 start ecosystem.config.cjs && npm run pm2:log",
+    "start:prod": "DB_HOST=fxdemo.museee.com ./node_modules/.bin/pm2 start ecosystem.config.cjs && npm run pm2:log",
     "start": "./node_modules/.bin/pm2 start ecosystem.config.cjs",
     "stop": "./node_modules/.bin/pm2 stop all",
     "pm2:log": "./node_modules/.bin/pm2 logs -f --lines 200",
