@@ -4,20 +4,17 @@ import { PineconeStore } from 'langchain/vectorstores/pinecone';
 import { pinecone } from '@/utils/pinecone-client';
 import { CustomPDFLoader } from '@/utils/customPDFLoader';
 import { PINECONE_INDEX_NAME, PINECONE_NAME_SPACE } from '@/config/pinecone';
-import { DirectoryLoader } from 'langchain/document_loaders/fs/directory';
+import { Document } from 'langchain/document';
 
-/* Name of directory to retrieve your files from */
-const filePath = 'docs-jp';
-
-export const run = async () => {
+export const ingestFiles = async (filePaths: string[], nameSpace: string) => {
   try {
-    /*load raw docs from the all files in the directory */
-    const directoryLoader = new DirectoryLoader(filePath, {
-      '.pdf': (path) => new CustomPDFLoader(path),
-    });
+    let rawDocs: Document[] = [];
 
-    // const loader = new PDFLoader(filePath);
-    const rawDocs = await directoryLoader.load();
+    for (const filePath of filePaths) {
+      const loader = new CustomPDFLoader(filePath);
+      const loadedDocs = await loader.load();
+      rawDocs = rawDocs.concat(loadedDocs);
+    }
 
     /* Split text into chunks */
     const textSplitter = new RecursiveCharacterTextSplitter({
@@ -34,9 +31,9 @@ export const run = async () => {
     const index = pinecone.Index(PINECONE_INDEX_NAME); //change to your own index name
 
     //embed the PDF documents
-    await PineconeStore.fromDocuments(docs, embeddings, {
+    return await PineconeStore.fromDocuments(docs, embeddings, {
       pineconeIndex: index,
-      namespace: PINECONE_NAME_SPACE,
+      namespace: nameSpace,
       textKey: 'text',
     });
   } catch (error) {
@@ -44,8 +41,3 @@ export const run = async () => {
     throw new Error('Failed to ingest your data');
   }
 };
-
-(async () => {
-  await run();
-  console.log('ingestion complete');
-})();

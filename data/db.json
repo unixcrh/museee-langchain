@@ -1,0 +1,38 @@
+{
+  "agents": [
+    {
+      "name": "Covid Doctor",
+      "description": "This is a Covid Doctor.",
+      "knowledgeId": 1,
+      "owner": "1",
+      "temperature": 0,
+      "id": 1
+    }
+  ],
+  "knowledge": [
+    {
+      "owner": "1",
+      "folderName": "Covid",
+      "namespace": "Museee-1-Covid",
+      "id": 1,
+      "files": [
+        {
+          "size": 399236,
+          "filepath": "/var/folders/vb/99zt50sj13dd1vxk89h71ymw0000gn/T/9952609ecf5f00e425afca700",
+          "newFilename": "9952609ecf5f00e425afca700",
+          "mimetype": "application/pdf",
+          "mtime": "2023-05-12T10:46:52.336Z",
+          "originalFilename": "COVID_Evidence_zh.pdf"
+        },
+        {
+          "size": 288509,
+          "filepath": "/var/folders/vb/99zt50sj13dd1vxk89h71ymw0000gn/T/9952609ecf5f00e425afca701",
+          "newFilename": "9952609ecf5f00e425afca701",
+          "mimetype": "application/pdf",
+          "mtime": "2023-05-12T10:46:52.337Z",
+          "originalFilename": "Deadly-Partners-Tobacco-and-COVID-19_CN-Final.pdf"
+        }
+      ]
+    }
+  ]
+}

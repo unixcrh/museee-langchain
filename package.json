@@ -23,6 +23,7 @@
     "@radix-ui/react-accordion": "^1.1.1",
     "clsx": "^1.2.1",
     "dotenv": "^16.0.3",
+    "json-server": "^0.17.3",
     "langchain": "0.0.55",
     "lucide-react": "^0.125.0",
     "next": "13.2.3",
@@ -31,17 +32,21 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-markdown": "^8.0.5",
+    "react-modal": "^3.16.1",
     "tailwind-merge": "^1.10.0"
   },
   "devDependencies": {
     "@iconify/react": "^4.1.0",
+    "@types/formidable": "^2.0.6",
     "@types/node": "^18.14.6",
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",
+    "@types/react-modal": "^3.16.0",
     "@typescript-eslint/parser": "^5.54.0",
     "autoprefixer": "^10.4.13",
     "eslint": "8.35.0",
     "eslint-config-next": "13.2.3",
+    "formidable": "^2.1.1",
     "postcss": "^8.4.21",
     "prettier": "^2.8.4",
     "tailwindcss": "^3.2.7",
@@ -58,8 +63,6 @@
     "typescript",
     "nextjs",
     "langchain",
-    "law",
-    "legal",
     "pdf",
     "openai"
   ]

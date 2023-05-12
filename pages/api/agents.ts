@@ -1,85 +1,75 @@
-import { CustomPDFLoader } from "@/utils/customPDFLoader";
-import { DirectoryLoader } from "langchain/document_loaders/fs/directory";
-import { NextApiRequest, NextApiResponse } from "next";
-const staticAgents = [{
-    name: 'NEC Expert',
-    avatar: '/img_chemist.png',
-    description: 'This is a NEC Expert, here to help you with your NEC questions.',
-    docsFolder: 'agents/museee-nec',
-    pineconeNameSpace: 'museee-jp',
-},
-{
-    name: 'Covid Doctor',
-    avatar: '/img_doctor.png',
-    description: 'This is a Covid Expert, here to help you with your Covid questions.',
-    docsFolder: 'agents/museee-doctor',
-    pineconeNameSpace: 'museee'
-}
-]
+import { Agent } from '../agents';
+import { Knowledge } from '../knowledge';
 
-export type Agent = {
-    name: string;
-    avatarUrl: string;
-    description: string;
-    metaData: Metadata[];
-    namespace: string;
-}
-
-class Metadata {
-    fileName: string
-    pageNumber: number
-
-    constructor(fileName: string, pageNumber: number) {
-        this.fileName = fileName;
-        this.pageNumber = pageNumber;
-    }
-}
-
-export default async function handler(
-    req: NextApiRequest,
-    res: NextApiResponse,
-) {
-    if (req.method !== 'GET') {
-        res.status(405).json({ error: 'Method not allowed' });
-        return;
-    }
-
+export default async function fetchAgents(userId: string): Promise<Agent[]> {
+  const fetchAgentsPromise = new Promise((resolve, reject) => {
     try {
-        const agents: Agent[] = [];
-        const metadataPromises: Promise<Metadata[]>[] = [];
-        staticAgents.forEach((agent) => {
-            metadataPromises.push(loadMetadata(agent.docsFolder));
+      fetch(`http://localhost:3001/agents?owner=${userId}`, {
+        method: 'GET',
+      })
+        .then((response) => {
+          if (response.status !== 200) {
+            reject(`Error fetching agents ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((agents) => {
+          resolve(agents);
+        })
+        .catch((error) => {
+          reject(error);
         });
-        const allMetadatas = await Promise.all(metadataPromises);
-        allMetadatas.forEach((metadatas, index) => {
-            agents.push({
-                name: staticAgents[index].name,
-                avatarUrl: staticAgents[index].avatar,
-                description: staticAgents[index].description,
-                metaData: metadatas,
-                namespace: staticAgents[index].pineconeNameSpace
-            });
-        });
-
-        res.status(200).json(agents);
-    } catch (error: any) {
-        console.log('error', error);
-        res.status(500).json({ error: error.message || 'Something went wrong' });
+    } catch (error) {
+      console.log('error', error);
     }
-}
+  });
 
-async function loadMetadata(filePath: string): Promise<Metadata[]> {
-    return new Promise((resolve, reject) => {
-        const directoryLoader = new DirectoryLoader(filePath, {
-            '.pdf': (path) => new CustomPDFLoader(path),
+  const fetchKnowledgePromise = new Promise((resolve, reject) => {
+    try {
+      fetch(`http://localhost:3001/knowledge?owner=${userId}`, {
+        method: 'GET',
+      })
+        .then((response) => {
+          if (response.status !== 200) {
+            reject(`Error fetching knowledge ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((knowledge) => {
+          resolve(knowledge);
+        })
+        .catch((error) => {
+          reject(error);
         });
-        directoryLoader.load().then((docs) => {
-            const metaData = docs.map((doc) => { return doc.metadata }).map((meta) => { return new Metadata(meta.source.split("/").pop(), meta.pdf_numpages) });
-            resolve(metaData);
-        }).catch((error) => {
-            reject(error);
-        }
-        );
-    });
+    } catch (error) {
+      console.log('error', error);
+    }
+  });
 
+  return Promise.all([fetchAgentsPromise, fetchKnowledgePromise]).then(
+    (values) => {
+      const agents: Agent[] = [];
+      const allAgents: Agent[] = values[0] as Agent[];
+      const allKnowledge: Knowledge[] = values[1] as Knowledge[];
+      allAgents.forEach((agent: Agent) => {
+        let knowledge = allKnowledge.find(
+          (knowledge) => knowledge.id === agent.knowledgeId,
+        );
+        if (Array.isArray(knowledge) && knowledge.length > 0) {
+          knowledge = knowledge[0];
+        }
+        agents.push({
+          id: agent.id,
+          name: agent.name,
+          temperature: agent.temperature,
+          description: agent.description,
+          knowledgeId: agent.knowledgeId,
+          owner: agent.owner,
+          knowledge: knowledge,
+        });
+      });
+
+      return agents;
+    },
+  );
 }

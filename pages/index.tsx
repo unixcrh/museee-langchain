@@ -12,8 +12,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { Agent } from './api/agents';
 import { Icon } from '@iconify/react';
+import { Agent } from './agents';
+import fetchAgents from './api/agents';
 
 const QA_PROMPT = `You are a helpful AI assistant. Use the following pieces of context to answer the question at the end, please answer as long as possible.
 If you don't know the answer, just say you don't know. DO NOT try to make up an answer.
@@ -22,6 +23,7 @@ If the question is not related to the context, politely respond that you are tun
 {context}
 
 Question: {question}, Helpful answer in markdown`;
+const userId = '1';
 
 export default function Home() {
   const LANGUAGES = [
@@ -39,38 +41,34 @@ export default function Home() {
   const [language, setLanguage] = useState<string>('English');
   const [languages, setLanguages] =
     useState<{ name: string; prompt: string }[]>(LANGUAGES);
-  const fetchAgents = async () => {
+
+  const fetchAllAgents = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/agents', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const data = await response.json();
-      setAgents(data);
-      setAgent(data[0]);
+      const agents = await fetchAgents(userId);
+      setAgents(agents);
+      setAgent(agents[0]);
       setLoading(false);
       setMessageState({
         messages: [
           {
-            message: `Hi, I'm ${data[0].name}, do you have any questions?`,
+            message: `Hi, I'm ${agents[0].name}, do you have any questions?`,
             type: 'apiMessage',
           },
         ],
         history: [],
       });
+
+      setLoading(false);
     } catch (error) {
       console.log('error', error);
       setLoading(false);
-      alert('Error fetching agents ${error}');
+      alert(`Error fetching agents ${error}`);
     }
   };
 
   useEffect(() => {
-    fetchAgents();
+    fetchAllAgents();
   }, []);
 
   const [messageState, setMessageState] = useState<{
@@ -120,7 +118,7 @@ export default function Home() {
     setQuery('');
 
     try {
-      const namespace = agent?.namespace;
+      const namespace = agent?.knowledge?.namespace;
       const prompt = QA_PROMPT + `, Please answer in ${language}:`;
       const response = await fetch('/api/chat', {
         method: 'POST',
@@ -213,7 +211,7 @@ export default function Home() {
                     icon = (
                       <Image
                         key={index}
-                        src={`${agent ? agent.avatarUrl : '/bot-image.png'}`}
+                        src="/usericon.png"
                         alt="AI"
                         width="40"
                         height="40"
@@ -304,25 +302,17 @@ export default function Home() {
                 <div className="text-gray-400 flex items-center">
                   <Icon icon="fluent:bot-24-filled" className="text-lg" />
                   <div className="ml-1">Chat with</div>
-                  {agent && (
-                    <Image
-                      className="rounded-full ml-2"
-                      alt={agent.name}
-                      src={agent.avatarUrl}
-                      width={20}
-                      height={20}
-                    />
-                  )}
 
                   <select
                     className="ml-2 text-black font-bold"
                     onChange={(e) => handleAgentSelect(e.target.value)}
                   >
-                    {agents.map((agent) => (
-                      <option key={agent.name} value={agent.name}>
-                        {agent.name}
-                      </option>
-                    ))}
+                    {agents &&
+                      agents.map((agent) => (
+                        <option key={agent.name} value={agent.name}>
+                          {agent.name}
+                        </option>
+                      ))}
                   </select>
                 </div>
 
@@ -395,7 +385,9 @@ export default function Home() {
             )}
           </main>
         </div>
-        <footer className="p-2 flex flex-col items-center">Powered by MUSEEE</footer>
+        <footer className="p-2 flex flex-col items-center text-gray-400 text-sm">
+          Powered by Museee
+        </footer>
       </Layout>
     </>
   );
