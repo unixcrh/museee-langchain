@@ -5,6 +5,7 @@ import ReactModal from 'react-modal';
 import { Icon } from '@iconify/react';
 import fetchAgents from '../api/agents';
 import { get } from 'http';
+import getConfig from 'next/config';
 
 const userId = '1';
 
@@ -108,6 +109,7 @@ function getStrictnessName(value: number): string | undefined {
 }
 
 export function AgentCreationModal(props: any) {
+  const { publicRuntimeConfig } = getConfig();
   const [allKnowledge, setAllKnowledge] = useState<Knowledge[]>([]);
   const [linkedKnowledge, setLinkedKnowledge] = useState<Knowledge>();
   const [agentName, setAgentName] = useState<string>('');
@@ -123,7 +125,7 @@ export function AgentCreationModal(props: any) {
   const fetchAllKnowledge = async () => {
     try {
       const response = await fetch(
-        `http://localhost:3001/knowledge?owner=${userId}`,
+        `http://${publicRuntimeConfig.DB_HOST}:3001/knowledge?owner=${userId}`,
         {
           method: 'GET',
         },
@@ -154,19 +156,22 @@ export function AgentCreationModal(props: any) {
     }
 
     try {
-      const response = await fetch(`http://localhost:3001/agents`, {
-        method: 'POST',
-        body: JSON.stringify({
-          name: agentName,
-          description: agentDescription,
-          knowledgeId: linkedKnowledge.id,
-          owner: userId,
-          temperature: selectedStrictness,
-        }),
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `http://${publicRuntimeConfig.DB_HOST}:3001/agents`,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            name: agentName,
+            description: agentDescription,
+            knowledgeId: linkedKnowledge.id,
+            owner: userId,
+            temperature: selectedStrictness,
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
         },
-      });
+      );
 
       props.onAgentCreateSuccess();
     } catch (error) {

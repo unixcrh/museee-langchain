@@ -2,6 +2,7 @@ import Layout from '@/components/layout';
 import { generateNameSpace } from '@/utils/data';
 import { Icon } from '@iconify/react';
 import { File } from 'formidable';
+import getConfig from 'next/config';
 import { use, useEffect, useState } from 'react';
 
 const userId = '1';
@@ -16,6 +17,7 @@ export interface Knowledge {
 export default function Knowledge(props: any) {
   const [knowledge, setKnowledge] = useState<Knowledge[]>([]);
   const [selectedKnowledge, setSelectedKnowledge] = useState<Knowledge>();
+  const { publicRuntimeConfig } = getConfig();
 
   useEffect(() => {
     fetchKnowledge();
@@ -24,7 +26,7 @@ export default function Knowledge(props: any) {
   const fetchKnowledge = async () => {
     try {
       const response = await fetch(
-        `http://localhost:3001/knowledge?owner=${userId}`,
+        `http://${publicRuntimeConfig.DB_HOST}:3001/knowledge?owner=${userId}`,
         {
           method: 'GET',
         },
@@ -46,17 +48,20 @@ export default function Knowledge(props: any) {
     }
     try {
       const namespace = generateNameSpace(folderName, userId);
-      const response = await fetch(`http://localhost:3001/knowledge`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `http://${publicRuntimeConfig.DB_HOST}:3001/knowledge`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            owner: userId,
+            folderName: folderName,
+            namespace,
+          }),
         },
-        body: JSON.stringify({
-          owner: userId,
-          folderName: folderName,
-          namespace,
-        }),
-      });
+      );
       const data = await response.json();
       console.log('createDraftFolder', data);
       fetchKnowledge();

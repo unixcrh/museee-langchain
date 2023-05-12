@@ -1,12 +1,18 @@
+import getConfig from 'next/config';
 import { Agent } from '../agents';
 import { Knowledge } from '../knowledge';
 
 export default async function fetchAgents(userId: string): Promise<Agent[]> {
+  const { publicRuntimeConfig } = getConfig();
+
   const fetchAgentsPromise = new Promise((resolve, reject) => {
     try {
-      fetch(`http://localhost:3001/agents?owner=${userId}`, {
-        method: 'GET',
-      })
+      fetch(
+        `http://${publicRuntimeConfig.DB_HOST}:3001/agents?owner=${userId}`,
+        {
+          method: 'GET',
+        },
+      )
         .then((response) => {
           if (response.status !== 200) {
             reject(`Error fetching agents ${response.status}`);
@@ -26,9 +32,12 @@ export default async function fetchAgents(userId: string): Promise<Agent[]> {
 
   const fetchKnowledgePromise = new Promise((resolve, reject) => {
     try {
-      fetch(`http://localhost:3001/knowledge?owner=${userId}`, {
-        method: 'GET',
-      })
+      fetch(
+        `http://${publicRuntimeConfig.DB_HOST}:3001/knowledge?owner=${userId}`,
+        {
+          method: 'GET',
+        },
+      )
         .then((response) => {
           if (response.status !== 200) {
             reject(`Error fetching knowledge ${response.status}`);

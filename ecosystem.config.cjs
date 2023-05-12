@@ -3,7 +3,7 @@ module.exports = {
     {
       name: 'Museee DB',
       script: './node_modules/.bin/json-server',
-      args: `data/db.json --port 3001 --host 0.0.0.0`,
+      args: `data/db.json --port 3001 --host ${process.env.DB_HOST}`,
       time: true,
       watch: false,
     },
